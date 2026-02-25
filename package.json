@@ -1,0 +1,31 @@
+{
+  "name": "gitscope",
+  "version": "0.1.0",
+  "description": "TUI PR review tool with vim navigation and MCP integration",
+  "module": "src/cli.tsx",
+  "type": "module",
+  "bin": {
+    "gitscope": "src/cli.tsx"
+  },
+  "scripts": {
+    "start": "bun run src/cli.tsx",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/diff": "^8.0.0",
+    "@types/react": "^19.2.14",
+    "@types/uuid": "^11.0.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "chokidar": "^5.0.0",
+    "diff": "^8.0.3",
+    "ink": "^6.8.0",
+    "react": "^19.2.4",
+    "simple-git": "^3.32.2",
+    "uuid": "^13.0.0"
+  }
+}
