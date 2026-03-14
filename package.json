@@ -1,6 +1,6 @@
 {
   "name": "cldiff",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TUI PR review tool with vim navigation and MCP integration",
   "module": "src/cli.tsx",
   "type": "module",
