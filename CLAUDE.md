@@ -1,106 +1,48 @@
+# CLAUDE.md
 
-Default to using Bun instead of Node.js.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-- Use `bun <file>` instead of `node <file>` or `ts-node <file>`
-- Use `bun test` instead of `jest` or `vitest`
-- Use `bun build <file.html|file.ts|file.css>` instead of `webpack` or `esbuild`
-- Use `bun install` instead of `npm install` or `yarn install` or `pnpm install`
-- Use `bun run <script>` instead of `npm run <script>` or `yarn run <script>` or `pnpm run <script>`
-- Bun automatically loads .env, so don't use dotenv.
+## What is GitScope
 
-## APIs
+GitScope is a TUI (Terminal User Interface) PR review tool built with React, Ink, and Bun. It provides vim-style navigation for reviewing local git changes (staged and unstaged) with real-time file watching and diff viewing.
 
-- `Bun.serve()` supports WebSockets, HTTPS, and routes. Don't use `express`.
-- `bun:sqlite` for SQLite. Don't use `better-sqlite3`.
-- `Bun.redis` for Redis. Don't use `ioredis`.
-- `Bun.sql` for Postgres. Don't use `pg` or `postgres.js`.
-- `WebSocket` is built-in. Don't use `ws`.
-- Prefer `Bun.file` over `node:fs`'s readFile/writeFile
-- Bun.$`ls` instead of execa.
+## Commands
+
+```bash
+bun install              # Install dependencies
+bun run start            # Run the app (bun run src/cli.tsx)
+bun run typecheck        # Type check (tsc --noEmit)
+bun test                 # Run all tests
+bun test src/services/git.test.ts  # Run a specific test file
+```
+
+## Bun Runtime
+
+Default to Bun for everything — `bun <file>`, `bun test`, `bun install`. Bun auto-loads .env files. Use `bun:test` for tests, `Bun.file` over `node:fs`, `Bun.$` over `execa`.
+
+## Architecture
+
+**Entry:** `src/cli.tsx` → initializes Ink's alternate screen buffer (fullscreen) and renders `<App>`.
+
+**Component tree:**
+```
+<App>
+├── <FileTree />       — Left panel: changed files with vim nav (j/k/G/g/Enter)
+├── <DiffViewer />     — Right panel: unified diff with search (/)
+└── <StatusBar />      — Bottom bar: branch, file count, key hints
+```
+
+**Hooks (src/hooks/):**
+- `useGitState` — Master state: files, diffs, file watcher setup, session filtering. Central data flow hub.
+- `useAppKeybindings` — Global keybindings (q/h/l/a/s), panel focus.
+- `useVimNavigation` — Reusable vim-style list navigation (j/k/G/g/Enter).
+
+**Services (src/services/):**
+- `git.ts` — `GitService` class wrapping `simple-git`. Handles changed file detection (A/M/D status), unified diff generation for staged/unstaged files. Special handling for untracked files via `git diff --no-index`.
+- `watcher.ts` — `FileWatcher` using chokidar. Watches working directory + `.git/index` and `.git/HEAD`. Debounced (150ms) onChange callback triggers state refresh.
+
+**Data flow:** FileWatcher detects changes → increments tick in useGitState → re-fetches file list → user selects file → fetches diff → DiffViewer renders parsed lines.
 
 ## Testing
 
-Use `bun test` to run tests.
-
-```ts#index.test.ts
-import { test, expect } from "bun:test";
-
-test("hello world", () => {
-  expect(1).toBe(1);
-});
-```
-
-## Frontend
-
-Use HTML imports with `Bun.serve()`. Don't use `vite`. HTML imports fully support React, CSS, Tailwind.
-
-Server:
-
-```ts#index.ts
-import index from "./index.html"
-
-Bun.serve({
-  routes: {
-    "/": index,
-    "/api/users/:id": {
-      GET: (req) => {
-        return new Response(JSON.stringify({ id: req.params.id }));
-      },
-    },
-  },
-  // optional websocket support
-  websocket: {
-    open: (ws) => {
-      ws.send("Hello, world!");
-    },
-    message: (ws, message) => {
-      ws.send(message);
-    },
-    close: (ws) => {
-      // handle close
-    }
-  },
-  development: {
-    hmr: true,
-    console: true,
-  }
-})
-```
-
-HTML files can import .tsx, .jsx or .js files directly and Bun's bundler will transpile & bundle automatically. `<link>` tags can point to stylesheets and Bun's CSS bundler will bundle.
-
-```html#index.html
-<html>
-  <body>
-    <h1>Hello, world!</h1>
-    <script type="module" src="./frontend.tsx"></script>
-  </body>
-</html>
-```
-
-With the following `frontend.tsx`:
-
-```tsx#frontend.tsx
-import React from "react";
-
-// import .css files directly and it works
-import './index.css';
-
-import { createRoot } from "react-dom/client";
-
-const root = createRoot(document.body);
-
-export default function Frontend() {
-  return <h1>Hello, world!</h1>;
-}
-
-root.render(<Frontend />);
-```
-
-Then, run index.ts
-
-```sh
-bun --hot ./index.ts
-```
-
-For more information, read the Bun API docs in `node_modules/bun-types/docs/**.md`.
+Tests use `bun:test` with `beforeAll`/`afterAll` lifecycle hooks. Git tests create temporary repos with real git operations (init, commit, branch). Test files are colocated with source (`*.test.ts`).

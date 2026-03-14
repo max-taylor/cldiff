@@ -1,0 +1,7 @@
+{
+  "name": "gitscope",
+  "description": "Session-aware diff tracking for AI-assisted code review",
+  "version": "0.1.0",
+  "author": "maxtaylor",
+  "repository": "maxtaylor/gitscope"
+}

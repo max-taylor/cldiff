@@ -23,30 +23,23 @@ A terminal-based diff review tool that watches local file changes, displays diff
 Run from repo root:
 
 ```bash
-gitscope              # opens TUI, defaults to current branch vs main
-gitscope --base dev   # compare against specific base
+gitscope              # opens TUI, reviews staged and unstaged changes
 ```
 
 ## Core Features
 
 ### P0 — Local Diff Review
 
-- **Default comparison:** current HEAD vs `main`. No remote/GitHub integration.
-- **Branch switching keybinds:**
-  - `sb` — switch base branch (fuzzy-filtered list)
-  - `st` — switch target branch (fuzzy-filtered list)
-  - Status bar shows `target ← base` at all times
-- **Branch list:** Show all local branches, filter to ones with actual diffs when possible.
+- Reviews staged and unstaged changes in the working directory. No remote/GitHub integration.
 - File tree panel showing changed files with status (A/M/D)
 - Unified diff view with syntax-highlighted additions/removals
 - Vim navigation: `j/k` scroll lines, `h/l` switch panels, `gg/G` top/bottom, `/` search
 - Debounced file watching — re-diffs only changed files
-- Diff computation offloaded to worker threads
 - **Worktrees:** Works fine — run `gitscope` from within any worktree directory. Each worktree is a valid git dir. No cross-worktree viewing.
 
 ### P1 — Inline Comments + MCP
 
-- `c` on a diff line opens comment input. Comments anchored to file:line:branch.
+- `c` on a diff line opens comment input. Comments anchored to file:line.
 - Comments persisted to `.gitscope/comments.json` in repo root (gitignore-friendly).
 - **MCP Server** exposes comments as tools:
   - `get_review_comments` — returns all comments with file paths, line numbers, content, and diff context
@@ -63,7 +56,6 @@ gitscope --base dev   # compare against specific base
   "file": "src/utils.ts",
   "line": 42,
   "branch": "feature/auth",
-  "base": "main",
   "content": "this should be a reduce not a forEach",
   "resolved": false,
   "createdAt": "ISO8601"
@@ -95,13 +87,12 @@ gitscope --base dev   # compare against specific base
 │  │  D file3  │  │                      │ │
 │  └──────────┘  └──────────────────────┘ │
 │  ┌──────────────────────────────────────┐│
-│  │ Status: feature/auth ← main | 3 files  ││
-│  │ [sb] switch base  [st] switch target    ││
+│  │ Status: feature/auth | 3 files          ││
 │  └──────────────────────────────────────┘│
 └─────────────────────────────────────────┘
 
 Background:
-  chokidar → debounce → worker thread (diff) → state update → re-render
+  chokidar → debounce → state update → re-render
 
 MCP Sidecar:
   .gitscope/comments.json ← TUI writes
@@ -112,7 +103,7 @@ MCP Sidecar:
 
 - **Standalone binary first**, neovim plugin later. WezTerm pane is the primary integration.
 - **Unified diff default**, side-by-side as toggle. Keeps TUI simpler initially.
-- **Worker threads for diffing** to keep UI responsive on large repos.
+- **simple-git for diffing** — direct git operations for staged/unstaged diffs.
 - **No database** — comments in `.gitscope/comments.json`, everything else from git.
 - **MCP over stdio** — simplest transport, works natively with Claude Code.
 - **Worktrees supported** — just run from within the worktree directory.
@@ -120,7 +111,7 @@ MCP Sidecar:
 
 ## MVP Scope (P0 + P1)
 
-Ship local diff review with file watching, vim navigation, base/target branch switching, inline comments, and MCP server. Target: review changes, leave comments, have Claude fix them via Claude Code.
+Ship local diff review with file watching, vim navigation, inline comments, and MCP server. Target: review changes, leave comments, have Claude fix them via Claude Code.
 
 ## Success Criteria
 
