@@ -1,4 +1,4 @@
-# GitScope
+# cldiff
 
 A TUI PR review tool with session-aware diff tracking for AI-assisted code review. Filter your file list to changes made by a specific Claude Code session.
 
@@ -9,11 +9,11 @@ A TUI PR review tool with session-aware diff tracking for AI-assisted code revie
 The plugin tracks which files Claude edits across sessions. Install it in Claude Code:
 
 ```
-/plugin marketplace add maxtaylor/gitscope
-/plugin install gitscope
+/plugin marketplace add maxtaylor/cldiff
+/plugin install cldiff
 ```
 
-Once installed, GitScope automatically records file changes to `.claude/review-tracking.jsonl` in whatever repo Claude operates in. No configuration needed.
+Once installed, cldiff automatically records file changes to `.claude/review-tracking.jsonl` in whatever repo Claude operates in. No configuration needed.
 
 ### TUI
 
@@ -26,7 +26,7 @@ Once installed, GitScope automatically records file changes to `.claude/review-t
 
 ## Usage
 
-Launch GitScope in any git repo:
+Launch cldiff in any git repo:
 
 ```bash
 bun run src/cli.tsx [directory]
@@ -56,4 +56,4 @@ Sessions are labeled with the first user prompt from the conversation (e.g. "Fix
 
 ### Debug Log
 
-Errors are logged to `.claude/gitscope-debug.log` in the repo directory.
+Errors are logged to `.claude/cldiff-debug.log` in the repo directory.

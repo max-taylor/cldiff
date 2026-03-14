@@ -1,15 +1,15 @@
 {
-  "name": "gitscope",
+  "name": "cldiff",
   "version": "0.1.0",
   "description": "TUI PR review tool with vim navigation and MCP integration",
   "module": "src/cli.tsx",
   "type": "module",
   "bin": {
-    "gitscope": "src/cli.tsx"
+    "cldiff": "src/cli.tsx"
   },
   "scripts": {
     "start": "bun run src/cli.tsx",
-    "build": "bun build src/cli.tsx --compile --outfile gitscope",
+    "build": "bun build src/cli.tsx --compile --outfile cldiff",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

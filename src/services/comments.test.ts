@@ -8,7 +8,7 @@ let tempDir: string;
 const tempDirs: string[] = [];
 
 beforeEach(async () => {
-  tempDir = await mkdtemp(join(tmpdir(), "gitscope-comments-test-"));
+  tempDir = await mkdtemp(join(tmpdir(), "cldiff-comments-test-"));
   tempDirs.push(tempDir);
 });
 
@@ -44,10 +44,10 @@ describe("CommentsService", () => {
     expect(await svc.loadComments()).toEqual(comments);
   });
 
-  test("creates .gitscope directory if missing", async () => {
+  test("creates .cldiff directory if missing", async () => {
     const svc = new CommentsService(tempDir);
     await svc.saveComments([makeComment()]);
-    const dirExists = await Bun.file(join(tempDir, ".gitscope", "comments.jsonl")).exists();
+    const dirExists = await Bun.file(join(tempDir, ".cldiff", "comments.jsonl")).exists();
     expect(dirExists).toBe(true);
   });
 
@@ -73,7 +73,7 @@ describe("CommentsService", () => {
   test("appendComment creates file if it does not exist", async () => {
     const svc = new CommentsService(tempDir);
     await svc.appendComment(makeComment());
-    const exists = await Bun.file(join(tempDir, ".gitscope", "comments.jsonl")).exists();
+    const exists = await Bun.file(join(tempDir, ".cldiff", "comments.jsonl")).exists();
     expect(exists).toBe(true);
     expect(await svc.loadComments()).toEqual([makeComment()]);
   });
@@ -82,7 +82,7 @@ describe("CommentsService", () => {
     const svc = new CommentsService(tempDir);
     const comments = [makeComment({ id: "a" }), makeComment({ id: "b" })];
     await svc.saveComments(comments);
-    const text = await Bun.file(join(tempDir, ".gitscope", "comments.jsonl")).text();
+    const text = await Bun.file(join(tempDir, ".cldiff", "comments.jsonl")).text();
     const lines = text.trim().split("\n");
     expect(lines).toHaveLength(2);
     expect(JSON.parse(lines[0]!).id).toBe("a");
@@ -92,7 +92,7 @@ describe("CommentsService", () => {
   test("loadComments skips malformed lines gracefully", async () => {
     const svc = new CommentsService(tempDir);
     await svc.saveComments([makeComment({ id: "good" })]);
-    const filePath = join(tempDir, ".gitscope", "comments.jsonl");
+    const filePath = join(tempDir, ".cldiff", "comments.jsonl");
     const { appendFile } = await import("node:fs/promises");
     await appendFile(filePath, "not valid json\n");
     await appendFile(filePath, JSON.stringify(makeComment({ id: "also-good" })) + "\n");
@@ -106,7 +106,7 @@ describe("CommentsService", () => {
 
   test("migrates legacy comments.json to comments.jsonl", async () => {
     const { mkdir } = await import("node:fs/promises");
-    const dir = join(tempDir, ".gitscope");
+    const dir = join(tempDir, ".cldiff");
     await mkdir(dir, { recursive: true });
     const legacyPath = join(dir, "comments.json");
     const comments = [makeComment({ id: "legacy-1" }), makeComment({ id: "legacy-2" })];

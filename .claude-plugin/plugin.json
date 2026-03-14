@@ -1,5 +1,5 @@
 {
-  "name": "gitscope",
+  "name": "cldiff",
   "description": "Session-aware diff tracking for AI-assisted code review",
   "version": "0.1.0"
 }

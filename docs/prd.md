@@ -1,4 +1,4 @@
-# GitScope — TUI PR Review Tool
+# cldiff — TUI PR Review Tool
 
 ## Problem
 
@@ -23,7 +23,7 @@ A terminal-based diff review tool that watches local file changes, displays diff
 Run from repo root:
 
 ```bash
-gitscope              # opens TUI, reviews staged and unstaged changes
+cldiff              # opens TUI, reviews staged and unstaged changes
 ```
 
 ## Core Features
@@ -35,18 +35,18 @@ gitscope              # opens TUI, reviews staged and unstaged changes
 - Unified diff view with syntax-highlighted additions/removals
 - Vim navigation: `j/k` scroll lines, `h/l` switch panels, `gg/G` top/bottom, `/` search
 - Debounced file watching — re-diffs only changed files
-- **Worktrees:** Works fine — run `gitscope` from within any worktree directory. Each worktree is a valid git dir. No cross-worktree viewing.
+- **Worktrees:** Works fine — run `cldiff` from within any worktree directory. Each worktree is a valid git dir. No cross-worktree viewing.
 
 ### P1 — Inline Comments + MCP
 
 - `c` on a diff line opens comment input. Comments anchored to file:line.
-- Comments persisted to `.gitscope/comments.json` in repo root (gitignore-friendly).
+- Comments persisted to `.cldiff/comments.json` in repo root (gitignore-friendly).
 - **MCP Server** exposes comments as tools:
   - `get_review_comments` — returns all comments with file paths, line numbers, content, and diff context
   - `get_comments_by_file(path)` — scoped to a single file
   - `resolve_comment(id)` — mark a comment as resolved
-- MCP runs as a sidecar process (`gitscope mcp`) or embedded in the TUI process on a stdio transport.
-- **Use case:** Run gitscope, leave comments like "refactor this to use a map" → ask Claude via Claude Code to read comments and fix them.
+- MCP runs as a sidecar process (`cldiff mcp`) or embedded in the TUI process on a stdio transport.
+- **Use case:** Run cldiff, leave comments like "refactor this to use a map" → ask Claude via Claude Code to read comments and fix them.
 
 #### Comment Schema
 
@@ -69,9 +69,9 @@ gitscope              # opens TUI, reviews staged and unstaged changes
 - Jump between hunks (`]c` / `[c` — vim-diff style)
 - Copy hunk/file path with keybind
 - Configurable themes (colors, diff styles)
-- `.gitscoperc` config file (default branch, keybinds)
+- `.cldiffrc` config file (default branch, keybinds)
 - WezTerm integration docs (keybind to open in split pane)
-- Neovim plugin (optional, shells out to `gitscope`)
+- Neovim plugin (optional, shells out to `cldiff`)
 
 ## Architecture
 
@@ -95,8 +95,8 @@ Background:
   chokidar → debounce → state update → re-render
 
 MCP Sidecar:
-  .gitscope/comments.json ← TUI writes
-  gitscope mcp (stdio) → Claude Code reads/resolves comments
+  .cldiff/comments.json ← TUI writes
+  cldiff mcp (stdio) → Claude Code reads/resolves comments
 ```
 
 ## Key Decisions
@@ -104,7 +104,7 @@ MCP Sidecar:
 - **Standalone binary first**, neovim plugin later. WezTerm pane is the primary integration.
 - **Unified diff default**, side-by-side as toggle. Keeps TUI simpler initially.
 - **simple-git for diffing** — direct git operations for staged/unstaged diffs.
-- **No database** — comments in `.gitscope/comments.json`, everything else from git.
+- **No database** — comments in `.cldiff/comments.json`, everything else from git.
 - **MCP over stdio** — simplest transport, works natively with Claude Code.
 - **Worktrees supported** — just run from within the worktree directory.
 - **Local only** — no remote/GitHub integration. Pure local diff review.

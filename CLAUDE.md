@@ -2,9 +2,9 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## What is GitScope
+## What is cldiff
 
-GitScope is a TUI (Terminal User Interface) PR review tool built with React, Ink, and Bun. It provides vim-style navigation for reviewing local git changes (staged and unstaged) with real-time file watching and diff viewing.
+cldiff is a TUI (Terminal User Interface) PR review tool built with React, Ink, and Bun. It provides vim-style navigation for reviewing local git changes (staged and unstaged) with real-time file watching and diff viewing.
 
 ## Commands
 

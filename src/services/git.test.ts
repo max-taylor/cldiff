@@ -9,7 +9,7 @@ let tempDir: string;
 let gitService: GitService;
 
 beforeAll(async () => {
-  tempDir = await mkdtemp(join(tmpdir(), "gitscope-test-"));
+  tempDir = await mkdtemp(join(tmpdir(), "cldiff-test-"));
   const git = simpleGit(tempDir);
 
   await git.init();

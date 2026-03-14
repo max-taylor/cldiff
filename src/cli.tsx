@@ -15,12 +15,12 @@ const restoreScreen = () => process.stdout.write("\x1b[?1049l");
 // Restore screen on crash so errors are visible
 process.on("uncaughtException", (err) => {
   restoreScreen();
-  console.error("gitscope crashed:", err);
+  console.error("cldiff crashed:", err);
   process.exit(1);
 });
 process.on("unhandledRejection", (err) => {
   restoreScreen();
-  console.error("gitscope crashed (unhandled rejection):", err);
+  console.error("cldiff crashed (unhandled rejection):", err);
   process.exit(1);
 });
 

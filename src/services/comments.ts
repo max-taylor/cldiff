@@ -18,7 +18,7 @@ export class CommentsService {
   private dirEnsured = false;
 
   constructor(cwd: string) {
-    this.dir = join(cwd, ".gitscope");
+    this.dir = join(cwd, ".cldiff");
     this.filePath = join(this.dir, "comments.jsonl");
     this.legacyPath = join(this.dir, "comments.json");
   }
