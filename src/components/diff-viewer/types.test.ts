@@ -1,5 +1,10 @@
 import { describe, test, expect } from "bun:test";
-import { parseDiff, displayLineNumber, maxLineNumber, lineColor } from "./types";
+import {
+  parseDiff,
+  displayLineNumber,
+  maxLineNumber,
+  lineColor,
+} from "./types";
 
 describe("parseDiff", () => {
   test("returns empty array for empty input", () => {
@@ -7,7 +12,8 @@ describe("parseDiff", () => {
   });
 
   test("parses file headers before first hunk", () => {
-    const raw = "diff --git a/foo.ts b/foo.ts\nindex abc..def 100644\n--- a/foo.ts\n+++ b/foo.ts";
+    const raw =
+      "diff --git a/foo.ts b/foo.ts\nindex abc..def 100644\n--- a/foo.ts\n+++ b/foo.ts";
     const result = parseDiff(raw);
     expect(result).toHaveLength(4);
     expect(result.every((l) => l.type === "header")).toBe(true);
@@ -50,29 +56,52 @@ describe("parseDiff", () => {
     const secondHunkAdd = result.find(
       (l) => l.type === "add" && l.content === "+new",
     );
-    expect(secondHunkRemove).toEqual({ type: "remove", content: "-old", oldLine: 10 });
-    expect(secondHunkAdd).toEqual({ type: "add", content: "+new", newLine: 10 });
+    expect(secondHunkRemove).toEqual({
+      type: "remove",
+      content: "-old",
+      oldLine: 10,
+    });
+    expect(secondHunkAdd).toEqual({
+      type: "add",
+      content: "+new",
+      newLine: 10,
+    });
   });
 
   test("handles hunk starting at non-1 line numbers", () => {
     const raw = "@@ -42,1 +57,1 @@\n-removed\n+added";
     const result = parseDiff(raw);
-    expect(result[1]).toEqual({ type: "remove", content: "-removed", oldLine: 42 });
+    expect(result[1]).toEqual({
+      type: "remove",
+      content: "-removed",
+      oldLine: 42,
+    });
     expect(result[2]).toEqual({ type: "add", content: "+added", newLine: 57 });
   });
 });
 
 describe("displayLineNumber", () => {
   test("returns newLine for add", () => {
-    expect(displayLineNumber({ type: "add", content: "+x", newLine: 5 })).toBe(5);
+    expect(displayLineNumber({ type: "add", content: "+x", newLine: 5 })).toBe(
+      5,
+    );
   });
 
   test("returns oldLine for remove", () => {
-    expect(displayLineNumber({ type: "remove", content: "-x", oldLine: 3 })).toBe(3);
+    expect(
+      displayLineNumber({ type: "remove", content: "-x", oldLine: 3 }),
+    ).toBe(3);
   });
 
   test("returns newLine for context", () => {
-    expect(displayLineNumber({ type: "context", content: " x", oldLine: 3, newLine: 4 })).toBe(4);
+    expect(
+      displayLineNumber({
+        type: "context",
+        content: " x",
+        oldLine: 3,
+        newLine: 4,
+      }),
+    ).toBe(4);
   });
 
   test("returns null for header", () => {

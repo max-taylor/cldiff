@@ -77,16 +77,30 @@ export function useDiffViewport(
     return items;
   }, [lines, scrollOffset, viewportHeight, commentsByLine]);
 
-  const gutterWidth = useMemo(() => String(maxLineNumber(lines) || 1).length, [lines]);
+  const gutterWidth = useMemo(
+    () => String(maxLineNumber(lines) || 1).length,
+    [lines],
+  );
 
-  const moveDown = useCallback(() => setCursorLine((c) => Math.min(c + 1, maxLineRef.current)), []);
-  const moveUp = useCallback(() => setCursorLine((c) => Math.max(c - 1, 0)), []);
+  const moveDown = useCallback(
+    () => setCursorLine((c) => Math.min(c + 1, maxLineRef.current)),
+    [],
+  );
+  const moveUp = useCallback(
+    () => setCursorLine((c) => Math.max(c - 1, 0)),
+    [],
+  );
   const jumpTop = useCallback(() => setCursorLine(0), []);
   const jumpBottom = useCallback(() => setCursorLine(maxLineRef.current), []);
   const halfPageDown = useCallback(() => {
     const half = Math.floor(viewportHeightRef.current / 2);
     setCursorLine((c) => Math.min(c + half, maxLineRef.current));
-    setScrollOffset((s) => Math.min(s + half, Math.max(0, maxLineRef.current - viewportHeightRef.current + 1)));
+    setScrollOffset((s) =>
+      Math.min(
+        s + half,
+        Math.max(0, maxLineRef.current - viewportHeightRef.current + 1),
+      ),
+    );
   }, []);
   const halfPageUp = useCallback(() => {
     const half = Math.floor(viewportHeightRef.current / 2);

@@ -29,8 +29,12 @@ export function FileTree({
   showStagedSection,
   viewportHeight,
 }: FileTreeProps) {
-  const sortedUnstaged = [...unstagedFiles].sort((a, b) => a.path.localeCompare(b.path));
-  const sortedStaged = [...stagedFiles].sort((a, b) => a.path.localeCompare(b.path));
+  const sortedUnstaged = [...unstagedFiles].sort((a, b) =>
+    a.path.localeCompare(b.path),
+  );
+  const sortedStaged = [...stagedFiles].sort((a, b) =>
+    a.path.localeCompare(b.path),
+  );
 
   // Build tree-structured visual rows first, then navigate in visual order
   const rows: Row[] = [];
@@ -48,7 +52,9 @@ export function FileTree({
   }
 
   // Extract file rows in visual order for navigation
-  const fileRows = rows.filter((r): r is Extract<Row, { type: "file" }> => r.type === "file");
+  const fileRows = rows.filter(
+    (r): r is Extract<Row, { type: "file" }> => r.type === "file",
+  );
 
   const { selectedIndex } = useVimNavigation({
     itemCount: fileRows.length,
@@ -70,9 +76,7 @@ export function FileTree({
   // Scroll to keep selected item visible
   const [scrollOffset, setScrollOffset] = useState(0);
   const selectedFileRow = fileRows[selectedIndex];
-  const selectedRowIndex = selectedFileRow
-    ? rows.indexOf(selectedFileRow)
-    : -1;
+  const selectedRowIndex = selectedFileRow ? rows.indexOf(selectedFileRow) : -1;
 
   // Walk backwards to find parent context rows (headers/directories) above the selected file
   let contextStart = selectedRowIndex;
@@ -109,7 +113,10 @@ export function FileTree({
           return (
             <Box key={`dir-${i}-${row.label}`}>
               <Text dimColor>{"    "}</Text>
-              <Text dimColor>{row.prefix}{row.label}</Text>
+              <Text dimColor>
+                {row.prefix}
+                {row.label}
+              </Text>
             </Box>
           );
         }
@@ -117,13 +124,16 @@ export function FileTree({
         return (
           <Box key={`${row.file.path}-${row.staged}`}>
             <Text dimColor>{isAtCursor ? ">" : " "} </Text>
-            <Text color={statusColors[row.file.status]}>{row.file.status} </Text>
+            <Text color={statusColors[row.file.status]}>
+              {row.file.status}{" "}
+            </Text>
             <Text
               bold={isAtCursor}
               inverse={isAtCursor && isFocused}
               wrap="truncate"
             >
-              {row.prefix}{row.fileName}
+              {row.prefix}
+              {row.fileName}
             </Text>
           </Box>
         );

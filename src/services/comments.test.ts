@@ -47,13 +47,18 @@ describe("CommentsService", () => {
   test("creates .cldiff directory if missing", async () => {
     const svc = new CommentsService(tempDir);
     await svc.saveComments([makeComment()]);
-    const dirExists = await Bun.file(join(tempDir, ".cldiff", "comments.jsonl")).exists();
+    const dirExists = await Bun.file(
+      join(tempDir, ".cldiff", "comments.jsonl"),
+    ).exists();
     expect(dirExists).toBe(true);
   });
 
   test("overwriting comments replaces previous data", async () => {
     const svc = new CommentsService(tempDir);
-    await svc.saveComments([makeComment({ id: "a" }), makeComment({ id: "b" })]);
+    await svc.saveComments([
+      makeComment({ id: "a" }),
+      makeComment({ id: "b" }),
+    ]);
     await svc.saveComments([makeComment({ id: "c" })]);
     const loaded = await svc.loadComments();
     expect(loaded).toHaveLength(1);
@@ -73,7 +78,9 @@ describe("CommentsService", () => {
   test("appendComment creates file if it does not exist", async () => {
     const svc = new CommentsService(tempDir);
     await svc.appendComment(makeComment());
-    const exists = await Bun.file(join(tempDir, ".cldiff", "comments.jsonl")).exists();
+    const exists = await Bun.file(
+      join(tempDir, ".cldiff", "comments.jsonl"),
+    ).exists();
     expect(exists).toBe(true);
     expect(await svc.loadComments()).toEqual([makeComment()]);
   });
@@ -82,7 +89,9 @@ describe("CommentsService", () => {
     const svc = new CommentsService(tempDir);
     const comments = [makeComment({ id: "a" }), makeComment({ id: "b" })];
     await svc.saveComments(comments);
-    const text = await Bun.file(join(tempDir, ".cldiff", "comments.jsonl")).text();
+    const text = await Bun.file(
+      join(tempDir, ".cldiff", "comments.jsonl"),
+    ).text();
     const lines = text.trim().split("\n");
     expect(lines).toHaveLength(2);
     expect(JSON.parse(lines[0]!).id).toBe("a");
@@ -95,7 +104,10 @@ describe("CommentsService", () => {
     const filePath = join(tempDir, ".cldiff", "comments.jsonl");
     const { appendFile } = await import("node:fs/promises");
     await appendFile(filePath, "not valid json\n");
-    await appendFile(filePath, JSON.stringify(makeComment({ id: "also-good" })) + "\n");
+    await appendFile(
+      filePath,
+      JSON.stringify(makeComment({ id: "also-good" })) + "\n",
+    );
     // loadComments catches the top-level error — but let's test line-level resilience
     // Current implementation will fail on bad line. This tests the catch-all.
     const loaded = await svc.loadComments();
@@ -109,7 +121,10 @@ describe("CommentsService", () => {
     const dir = join(tempDir, ".cldiff");
     await mkdir(dir, { recursive: true });
     const legacyPath = join(dir, "comments.json");
-    const comments = [makeComment({ id: "legacy-1" }), makeComment({ id: "legacy-2" })];
+    const comments = [
+      makeComment({ id: "legacy-1" }),
+      makeComment({ id: "legacy-2" }),
+    ];
     await writeFile(legacyPath, JSON.stringify(comments));
 
     const svc = new CommentsService(tempDir);

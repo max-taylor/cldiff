@@ -31,7 +31,12 @@ export function parseDiff(raw: string): DiffLine[] {
       result.push({ type: "remove", content: line, oldLine: oldCounter });
       oldCounter++;
     } else {
-      result.push({ type: "context", content: line, oldLine: oldCounter, newLine: newCounter });
+      result.push({
+        type: "context",
+        content: line,
+        oldLine: oldCounter,
+        newLine: newCounter,
+      });
       oldCounter++;
       newCounter++;
     }
@@ -56,8 +61,10 @@ export function displayLineNumber(line: DiffLine): number | null {
 export function maxLineNumber(lines: DiffLine[]): number {
   let max = 0;
   for (const line of lines) {
-    if (line.type === "add" || line.type === "context") max = Math.max(max, line.newLine);
-    if (line.type === "remove" || line.type === "context") max = Math.max(max, line.oldLine);
+    if (line.type === "add" || line.type === "context")
+      max = Math.max(max, line.newLine);
+    if (line.type === "remove" || line.type === "context")
+      max = Math.max(max, line.oldLine);
   }
   return max;
 }

@@ -47,7 +47,9 @@ export function CommentInput({ lineNumber, text, isEdit }: CommentInputProps) {
         {isEdit ? "Edit" : "New Comment"} (line {lineNumber})
       </Text>
       {precedingLines.map((line, i) => (
-        <Text key={i} color="white">{line || " "}</Text>
+        <Text key={i} color="white">
+          {line || " "}
+        </Text>
       ))}
       <Box>
         <Text color="white">{lastLine}</Text>

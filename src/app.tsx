@@ -87,7 +87,12 @@ export function App({ cwd }: { cwd: string }) {
 
   if (kb.overlay === "help") {
     return (
-      <Box justifyContent="center" alignItems="center" width="100%" height={termHeight}>
+      <Box
+        justifyContent="center"
+        alignItems="center"
+        width="100%"
+        height={termHeight}
+      >
         <KeybindingHelp onClose={kb.closeOverlay} />
       </Box>
     );
@@ -95,7 +100,12 @@ export function App({ cwd }: { cwd: string }) {
 
   if (kb.overlay === "pick-session") {
     return (
-      <Box justifyContent="center" alignItems="center" width="100%" height={termHeight}>
+      <Box
+        justifyContent="center"
+        alignItems="center"
+        width="100%"
+        height={termHeight}
+      >
         <SessionPicker
           sessions={git.sessionGroups}
           onSelect={handleSelectSession}

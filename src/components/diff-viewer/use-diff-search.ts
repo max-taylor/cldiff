@@ -25,7 +25,14 @@ export function useDiffSearch(lines: DiffLine[]) {
   /** Returns the line to jump to, or undefined. */
   const handleInput = (
     input: string,
-    key: { escape?: boolean; return?: boolean; backspace?: boolean; delete?: boolean; ctrl?: boolean; meta?: boolean },
+    key: {
+      escape?: boolean;
+      return?: boolean;
+      backspace?: boolean;
+      delete?: boolean;
+      ctrl?: boolean;
+      meta?: boolean;
+    },
   ): void => {
     if (key.escape) {
       setIsSearching(false);
@@ -51,7 +58,8 @@ export function useDiffSearch(lines: DiffLine[]) {
 
   const prevMatch = () => {
     if (matchIndices.length === 0) return undefined;
-    const prev = (currentMatchIndex - 1 + matchIndices.length) % matchIndices.length;
+    const prev =
+      (currentMatchIndex - 1 + matchIndices.length) % matchIndices.length;
     setCurrentMatchIndex(prev);
     return matchIndices[prev];
   };

@@ -7,7 +7,12 @@ interface StatusBarProps {
   hasTrackingData: boolean;
 }
 
-export function StatusBar({ currentBranch, fileCount, sessionLabel, hasTrackingData }: StatusBarProps) {
+export function StatusBar({
+  currentBranch,
+  fileCount,
+  sessionLabel,
+  hasTrackingData,
+}: StatusBarProps) {
   const branchLabel = sessionLabel
     ? `${currentBranch} — filtered: "${sessionLabel}"`
     : currentBranch;

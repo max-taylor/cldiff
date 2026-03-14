@@ -7,11 +7,15 @@ function file(path: string, status: "A" | "M" | "D" = "M"): ChangedFile {
 }
 
 function fileRows(rows: Row[]) {
-  return rows.filter((r): r is Extract<Row, { type: "file" }> => r.type === "file");
+  return rows.filter(
+    (r): r is Extract<Row, { type: "file" }> => r.type === "file",
+  );
 }
 
 function dirRows(rows: Row[]) {
-  return rows.filter((r): r is Extract<Row, { type: "directory" }> => r.type === "directory");
+  return rows.filter(
+    (r): r is Extract<Row, { type: "directory" }> => r.type === "directory",
+  );
 }
 
 describe("buildTreeRows", () => {
@@ -63,10 +67,7 @@ describe("buildTreeRows", () => {
   });
 
   test("sorts directories before files", () => {
-    const rows = buildTreeRows(
-      [file("z.ts"), file("src/a.ts")],
-      false,
-    );
+    const rows = buildTreeRows([file("z.ts"), file("src/a.ts")], false);
     // src/ directory should come before z.ts file
     const firstNonHeader = rows[0]!;
     expect(firstNonHeader.type).toBe("directory");

@@ -5,7 +5,9 @@ export function useDiffComments(comments: Comment[]) {
   const [isCommenting, setIsCommenting] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
-  const [confirmingDeleteLine, setConfirmingDeleteLine] = useState<number | null>(null);
+  const [confirmingDeleteLine, setConfirmingDeleteLine] = useState<
+    number | null
+  >(null);
 
   const commentsByLine = useMemo(() => {
     const map = new Map<number, Comment[]>();
@@ -39,8 +41,19 @@ export function useDiffComments(comments: Comment[]) {
 
   const handleInput = (
     input: string,
-    key: { escape?: boolean; return?: boolean; shift?: boolean; backspace?: boolean; delete?: boolean; ctrl?: boolean; meta?: boolean },
-  ): { action: "cancel" } | { action: "submit"; id: string | null; content: string } | null => {
+    key: {
+      escape?: boolean;
+      return?: boolean;
+      shift?: boolean;
+      backspace?: boolean;
+      delete?: boolean;
+      ctrl?: boolean;
+      meta?: boolean;
+    },
+  ):
+    | { action: "cancel" }
+    | { action: "submit"; id: string | null; content: string }
+    | null => {
     if (key.escape) {
       setIsCommenting(false);
       setCommentText("");
@@ -52,10 +65,13 @@ export function useDiffComments(comments: Comment[]) {
       return null;
     }
     if (key.return) {
-      const result =
-        commentText.trim()
-          ? { action: "submit" as const, id: editingCommentId, content: commentText.trim() }
-          : { action: "cancel" as const };
+      const result = commentText.trim()
+        ? {
+            action: "submit" as const,
+            id: editingCommentId,
+            content: commentText.trim(),
+          }
+        : { action: "cancel" as const };
       setIsCommenting(false);
       setCommentText("");
       setEditingCommentId(null);

@@ -10,14 +10,24 @@
   "scripts": {
     "start": "bun run src/cli.tsx",
     "build": "bun build src/cli.tsx --compile --outfile cldiff",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\"",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\""
   },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/diff": "^8.0.0",
     "@types/react": "^19.2.14",
     "@types/uuid": "^11.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.57.0",
+    "@typescript-eslint/parser": "^8.57.0",
+    "eslint": "^10.0.3",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
     "ink-testing-library": "^4.0.0",
+    "prettier": "^3.8.1",
     "react-devtools-core": "^7.0.1"
   },
   "peerDependencies": {

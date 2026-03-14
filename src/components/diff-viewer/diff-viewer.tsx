@@ -31,7 +31,12 @@ export function DiffViewer({
   const lines = useMemo(() => parseDiff(diff), [diff]);
   const search = useDiffSearch(lines);
   const commenting = useDiffComments(comments);
-  const viewport = useDiffViewport(lines, viewportHeight, commenting.commentsByLine, diff);
+  const viewport = useDiffViewport(
+    lines,
+    viewportHeight,
+    commenting.commentsByLine,
+    diff,
+  );
 
   // Reset comment state on diff change
   useEffect(() => {
@@ -40,8 +45,16 @@ export function DiffViewer({
 
   // Notify parent when text input is capturing keys
   useEffect(() => {
-    onInputCapture?.(search.isSearching || commenting.isCommenting || commenting.confirmingDeleteLine !== null);
-  }, [search.isSearching, commenting.isCommenting, commenting.confirmingDeleteLine]);
+    onInputCapture?.(
+      search.isSearching ||
+        commenting.isCommenting ||
+        commenting.confirmingDeleteLine !== null,
+    );
+  }, [
+    search.isSearching,
+    commenting.isCommenting,
+    commenting.confirmingDeleteLine,
+  ]);
 
   // Always-active handler: ctrl+d/u scrolls diff regardless of panel focus
   const handleCtrlScroll = useCallback(
@@ -120,35 +133,49 @@ export function DiffViewer({
     <Box flexDirection="column">
       {viewport.visibleItems.map((item) => {
         if (item.kind === "comments") {
-          return <CommentBox key={`comments-${item.anchorLine}`} comments={item.comments} />;
+          return (
+            <CommentBox
+              key={`comments-${item.anchorLine}`}
+              comments={item.comments}
+            />
+          );
         }
 
         const { globalIndex, line } = item;
         const isCursor = globalIndex === viewport.cursorLine && isFocused;
         const isMatch = search.matchIndices.includes(globalIndex);
-        const isCurrentMatch = search.matchIndices[search.currentMatchIndex] === globalIndex;
+        const isCurrentMatch =
+          search.matchIndices[search.currentMatchIndex] === globalIndex;
         const hasComment = commenting.commentedLines.has(globalIndex);
-        const showInlineInput = commenting.isCommenting && globalIndex === viewport.cursorLine;
-        const showDeleteConfirm = commenting.confirmingDeleteLine === globalIndex;
+        const showInlineInput =
+          commenting.isCommenting && globalIndex === viewport.cursorLine;
+        const showDeleteConfirm =
+          commenting.confirmingDeleteLine === globalIndex;
 
         const displayNum = displayLineNumber(line);
-        const lineNum = displayNum !== null
-          ? String(displayNum).padStart(viewport.gutterWidth, " ")
-          : " ".repeat(viewport.gutterWidth);
+        const lineNum =
+          displayNum !== null
+            ? String(displayNum).padStart(viewport.gutterWidth, " ")
+            : " ".repeat(viewport.gutterWidth);
         return (
           <React.Fragment key={globalIndex}>
             <Box>
               <Box flexShrink={0}>
                 <Text dimColor>{lineNum}</Text>
                 {hasComment ? (
-                  <Text color="yellow" dimColor> *</Text>
+                  <Text color="yellow" dimColor>
+                    {" "}
+                    *
+                  </Text>
                 ) : (
                   <Text> </Text>
                 )}
               </Box>
               <Text
                 color={isCursor ? undefined : lineColor(line.type)}
-                dimColor={line.type === "context" && !isCursor && !isCurrentMatch}
+                dimColor={
+                  line.type === "context" && !isCursor && !isCurrentMatch
+                }
                 bold={isCursor || isCurrentMatch}
                 inverse={isCursor || isCurrentMatch}
                 underline={isMatch && !isCurrentMatch && !isCursor}
@@ -157,8 +184,15 @@ export function DiffViewer({
               </Text>
             </Box>
             {showDeleteConfirm && (
-              <Box borderStyle="round" borderColor="red" paddingX={1} flexDirection="column">
-                <Text bold color="red">Delete comment? <Text color="white">(y/n)</Text></Text>
+              <Box
+                borderStyle="round"
+                borderColor="red"
+                paddingX={1}
+                flexDirection="column"
+              >
+                <Text bold color="red">
+                  Delete comment? <Text color="white">(y/n)</Text>
+                </Text>
               </Box>
             )}
             {showInlineInput && (
@@ -177,11 +211,14 @@ export function DiffViewer({
           <Text dimColor>_</Text>
         </Box>
       )}
-      {!search.isSearching && !commenting.isCommenting && search.matchIndices.length > 0 && (
-        <Text dimColor>
-          [{search.currentMatchIndex + 1}/{search.matchIndices.length}] n/N to navigate
-        </Text>
-      )}
+      {!search.isSearching &&
+        !commenting.isCommenting &&
+        search.matchIndices.length > 0 && (
+          <Text dimColor>
+            [{search.currentMatchIndex + 1}/{search.matchIndices.length}] n/N to
+            navigate
+          </Text>
+        )}
     </Box>
   );
 }

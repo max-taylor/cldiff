@@ -8,7 +8,11 @@ interface SessionPickerProps {
   onCancel: () => void;
 }
 
-export function SessionPicker({ sessions, onSelect, onCancel }: SessionPickerProps) {
+export function SessionPicker({
+  sessions,
+  onSelect,
+  onCancel,
+}: SessionPickerProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   useInput((input, key) => {
@@ -37,7 +41,9 @@ export function SessionPicker({ sessions, onSelect, onCancel }: SessionPickerPro
         Filter by session
       </Text>
       <Box flexDirection="column" marginTop={1}>
-        {sessions.length === 0 && <Text dimColor>No sessions with active changes</Text>}
+        {sessions.length === 0 && (
+          <Text dimColor>No sessions with active changes</Text>
+        )}
         {sessions.map((session, i) => (
           <Box key={session.session_id} gap={1}>
             <Text inverse={i === selectedIndex} bold={i === selectedIndex}>

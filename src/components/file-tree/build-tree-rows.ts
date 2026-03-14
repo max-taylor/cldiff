@@ -3,17 +3,20 @@ import type { ChangedFile } from "../../services/git.ts";
 export type Row =
   | { type: "header"; label: string }
   | { type: "directory"; label: string; prefix: string }
-  | { type: "file"; file: ChangedFile; staged: boolean; prefix: string; fileName: string };
+  | {
+      type: "file";
+      file: ChangedFile;
+      staged: boolean;
+      prefix: string;
+      fileName: string;
+    };
 
 interface TrieNode {
   children: Map<string, TrieNode>;
   file?: ChangedFile;
 }
 
-export function buildTreeRows(
-  files: ChangedFile[],
-  staged: boolean,
-): Row[] {
+export function buildTreeRows(files: ChangedFile[], staged: boolean): Row[] {
   if (files.length === 0) return [];
 
   // Build trie from file paths
@@ -65,7 +68,7 @@ export function buildTreeRows(
       const isLast = i === entries.length - 1;
       const connector = isLast ? "└── " : "├── ";
       const prefix = depth === 0 ? "" : parentPrefixes.join("") + connector;
-      const continuation = depth === 0 ? "" : (isLast ? "    " : "│   ");
+      const continuation = depth === 0 ? "" : isLast ? "    " : "│   ";
 
       if (entry.node.file) {
         rows.push({
