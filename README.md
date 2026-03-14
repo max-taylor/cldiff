@@ -9,7 +9,7 @@ A TUI PR review tool with session-aware diff tracking for AI-assisted code revie
 The plugin tracks which files Claude edits across sessions. Install it in Claude Code:
 
 ```
-/plugin marketplace add maxtaylor/cldiff
+/plugin marketplace add max-taylor/cldiff
 /plugin install cldiff
 ```
 
