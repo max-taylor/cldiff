@@ -71,7 +71,7 @@ export function FileTree({
     const row = fileRows[selectedIndex];
     if (!row) return;
     onCursorChange(row.file.path, row.staged);
-  }, [selectedIndex, isFocused]);
+  }, [selectedIndex, isFocused, fileRows, onCursorChange]);
 
   // Scroll to keep selected item visible
   const [scrollOffset, setScrollOffset] = useState(0);
@@ -91,7 +91,7 @@ export function FileTree({
     } else if (selectedRowIndex >= scrollOffset + viewportHeight) {
       setScrollOffset(selectedRowIndex - viewportHeight + 1);
     }
-  }, [selectedRowIndex, viewportHeight]);
+  }, [selectedRowIndex, viewportHeight, contextStart, scrollOffset]);
 
   if (fileRows.length === 0) {
     return <Text dimColor>No changed files</Text>;

@@ -49,7 +49,7 @@ export function useGitState(cwd: string) {
     const watcher = new FileWatcher(cwd);
     watcher.start(() => setTick((t) => t + 1));
     return () => watcher.stop();
-  }, []);
+  }, [cwd, gitService]);
 
   // Refresh file list + tracking data
   useEffect(() => {
@@ -95,7 +95,7 @@ export function useGitState(cwd: string) {
         }
       }
     });
-  }, [tick]);
+  }, [tick, cwd, gitService, selectedFile, selectedSession]);
 
   // Refresh diff
   useEffect(() => {
@@ -104,6 +104,7 @@ export function useGitState(cwd: string) {
       return;
     }
     if (!selectedFile) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDiffContent("");
       return;
     }
@@ -111,7 +112,7 @@ export function useGitState(cwd: string) {
       ? gitService.getStagedFileDiff(selectedFile)
       : gitService.getUnstagedFileDiff(selectedFile);
     getDiff.then(setDiffContent).catch(() => setDiffContent(""));
-  }, [selectedFile, selectedStaged, tick]);
+  }, [selectedFile, selectedStaged, tick, gitService]);
 
   const selectSession = (sessionId: string) => {
     const group = sessionGroups.find((g) => g.session_id === sessionId);

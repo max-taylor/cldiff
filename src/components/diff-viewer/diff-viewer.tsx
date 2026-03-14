@@ -41,6 +41,7 @@ export function DiffViewer({
   // Reset comment state on diff change
   useEffect(() => {
     commenting.reset();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [diff]);
 
   // Notify parent when text input is capturing keys
@@ -54,6 +55,7 @@ export function DiffViewer({
     search.isSearching,
     commenting.isCommenting,
     commenting.confirmingDeleteLine,
+    onInputCapture,
   ]);
 
   // Always-active handler: ctrl+d/u scrolls diff regardless of panel focus
@@ -63,7 +65,7 @@ export function DiffViewer({
       if (input === "d") viewport.halfPageDown();
       else if (input === "u") viewport.halfPageUp();
     },
-    [viewport.halfPageDown, viewport.halfPageUp],
+    [viewport],
   );
   useInput(handleCtrlScroll);
 

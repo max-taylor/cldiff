@@ -16,7 +16,7 @@ export function App({ cwd }: { cwd: string }) {
 
   useEffect(() => {
     commentsService.loadComments().then(setAllComments);
-  }, []);
+  }, [commentsService]);
 
   const fileComments = useMemo(
     () => allComments.filter((c) => c.file === git.selectedFile),

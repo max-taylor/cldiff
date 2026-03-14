@@ -61,14 +61,14 @@ describe("useVimNavigation", () => {
     expect(selected(app)).toBe(1);
   });
 
-  test("k does not go below 0", async () => {
+  test("k wraps around to last item", async () => {
     const app = render(<TestComponent itemCount={5} onSelect={() => {}} />);
     app.stdin.write("k");
     await delay();
-    expect(selected(app)).toBe(0);
+    expect(selected(app)).toBe(4);
   });
 
-  test("j does not exceed itemCount - 1", async () => {
+  test("j wraps around to first item", async () => {
     const app = render(<TestComponent itemCount={3} onSelect={() => {}} />);
     for (let i = 0; i < 5; i++) {
       app.stdin.write("j");

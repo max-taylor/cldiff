@@ -19,9 +19,11 @@ export function useDiffViewport(
 
   // Keep refs in sync so stable callbacks always read current values
   const maxLineRef = useRef(maxLine);
-  maxLineRef.current = maxLine;
   const viewportHeightRef = useRef(viewportHeight);
-  viewportHeightRef.current = viewportHeight;
+  useEffect(() => {
+    maxLineRef.current = maxLine;
+    viewportHeightRef.current = viewportHeight;
+  }, [maxLine, viewportHeight]);
 
   // Reset on diff change
   useEffect(() => {
