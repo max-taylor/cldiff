@@ -1,5 +1,20 @@
 {
   "name": "cldiff",
-  "description": "Session-aware diff tracking for AI-assisted code review",
-  "version": "0.1.0"
+  "version": "0.1.0",
+  "description": "Session-aware diff tracking and TUI review tool for AI-assisted code review.",
+  "author": {
+    "name": "max-taylor",
+    "url": "https://github.com/max-taylor"
+  },
+  "homepage": "https://github.com/max-taylor/cldiff",
+  "repository": "https://github.com/max-taylor/cldiff",
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "diff",
+    "code-review",
+    "tui",
+    "git"
+  ],
+  "skills": ["./skills/"]
 }

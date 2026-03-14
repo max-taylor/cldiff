@@ -1,0 +1,36 @@
+{
+  "name": "cldiff",
+  "owner": {
+    "name": "max-taylor"
+  },
+  "metadata": {
+    "description": "Session-aware diff tracking and TUI review tool for AI-assisted code review"
+  },
+  "plugins": [
+    {
+      "name": "cldiff",
+      "source": "./",
+      "description": "TUI diff viewer with vim navigation, inline comments, and a /resolve skill to implement review comments.",
+      "author": {
+        "name": "max-taylor"
+      },
+      "homepage": "https://github.com/max-taylor/cldiff",
+      "repository": "https://github.com/max-taylor/cldiff",
+      "license": "MIT",
+      "keywords": [
+        "diff",
+        "code-review",
+        "tui",
+        "git",
+        "vim"
+      ],
+      "category": "development",
+      "tags": [
+        "diff",
+        "code-review",
+        "git",
+        "tui"
+      ]
+    }
+  ]
+}

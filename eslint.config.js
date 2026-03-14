@@ -35,7 +35,7 @@ export default [
     },
   },
   {
-    ignores: ["node_modules", "dist", "gitscope"],
+    ignores: ["node_modules", "dist", "cldiff"],
   },
   prettier,
 ];
