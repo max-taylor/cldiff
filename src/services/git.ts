@@ -76,6 +76,11 @@ export class GitService {
     await this.git.raw(["reset", "HEAD", "--", filePath]);
   }
 
+  async commit(message: string): Promise<string> {
+    const result = await this.git.commit(message);
+    return result.summary.changes + " files changed";
+  }
+
   private parseNameStatus(raw: string): ChangedFile[] {
     if (!raw.trim()) return [];
 

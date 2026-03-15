@@ -2,13 +2,14 @@ import { useState } from "react";
 import { useInput, useApp } from "ink";
 
 export type Panel = "files" | "diff";
-export type Overlay = "pick-session" | "help" | null;
+export type Overlay = "pick-session" | "help" | "commit" | null;
 
 interface AppKeybindingsOptions {
   onToggleStage: () => void;
   onClearSessionFilter: () => void;
   hasSessionFilter: boolean;
   hasTrackingData: boolean;
+  hasStagedFiles: boolean;
   inputCaptured?: boolean;
 }
 
@@ -17,6 +18,7 @@ export function useAppKeybindings({
   onClearSessionFilter,
   hasSessionFilter,
   hasTrackingData,
+  hasStagedFiles,
   inputCaptured,
 }: AppKeybindingsOptions) {
   const { exit } = useApp();
@@ -45,6 +47,8 @@ export function useAppKeybindings({
         onToggleStage();
       } else if (input === "s" && hasTrackingData) {
         setOverlay("pick-session");
+      } else if (input === "c" && hasStagedFiles) {
+        setOverlay("commit");
       }
     },
     { isActive: overlay === null && !inputCaptured },

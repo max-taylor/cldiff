@@ -5,6 +5,7 @@ interface StatusBarProps {
   fileCount: number;
   sessionLabel: string | null;
   hasTrackingData: boolean;
+  hasStagedFiles: boolean;
 }
 
 export function StatusBar({
@@ -12,16 +13,19 @@ export function StatusBar({
   fileCount,
   sessionLabel,
   hasTrackingData,
+  hasStagedFiles,
 }: StatusBarProps) {
   const branchLabel = sessionLabel
     ? `${currentBranch} — filtered: "${sessionLabel}"`
     : currentBranch;
 
-  const hints = sessionLabel
-    ? "[s] filter [esc] clear [a] stage [?] help [q] quit"
-    : hasTrackingData
-      ? "[s] filter [a] stage [?] help [q] quit"
-      : "[a] stage [?] help [q] quit";
+  const parts: string[] = [];
+  if (sessionLabel) parts.push("[s] filter", "[esc] clear");
+  else if (hasTrackingData) parts.push("[s] filter");
+  parts.push("[a] stage");
+  if (hasStagedFiles) parts.push("[c] commit");
+  parts.push("[?] help", "[q] quit");
+  const hints = parts.join(" ");
 
   return (
     <Box paddingX={1} justifyContent="space-between">

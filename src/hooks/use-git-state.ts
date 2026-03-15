@@ -169,6 +169,11 @@ export function useGitState(cwd: string) {
     tickToSkipRef.current = tick + 1;
   };
 
+  const commit = async (message: string) => {
+    await gitService.commit(message);
+    setTick((t) => t + 1);
+  };
+
   return {
     currentBranch,
     selectedFile,
@@ -179,6 +184,8 @@ export function useGitState(cwd: string) {
     stagedFiles,
     diffContent,
     toggleStage,
+    commit,
+    hasStagedFiles: allStagedFiles.length > 0,
     sessionGroups,
     selectedSession,
     hasTrackingData,

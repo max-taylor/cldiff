@@ -15,6 +15,7 @@ const sections = [
       ["s", "Filter by Claude session"],
       ["Esc", "Clear session filter"],
       ["a", "Stage/unstage file"],
+      ["c", "Commit staged files"],
       ["?", "Show keybindings"],
       ["q", "Quit"],
     ],

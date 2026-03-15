@@ -6,6 +6,7 @@ import { FileTree } from "./components/file-tree/index.ts";
 import { DiffViewer } from "./components/diff-viewer/index.ts";
 import { SessionPicker } from "./components/session-picker.tsx";
 import { KeybindingHelp } from "./components/keybinding-help.tsx";
+import { CommitDialog } from "./components/commit-dialog.tsx";
 import { StatusBar } from "./components/status-bar.tsx";
 import { CommentsService, type Comment } from "./services/comments.ts";
 
@@ -61,6 +62,7 @@ export function App({ cwd }: { cwd: string }) {
     onClearSessionFilter: git.clearSessionFilter,
     hasSessionFilter: git.selectedSession !== null,
     hasTrackingData: git.hasTrackingData,
+    hasStagedFiles: git.hasStagedFiles,
     inputCaptured,
   });
   const { stdout } = useStdout();
@@ -94,6 +96,25 @@ export function App({ cwd }: { cwd: string }) {
         height={termHeight}
       >
         <KeybindingHelp onClose={kb.closeOverlay} />
+      </Box>
+    );
+  }
+
+  if (kb.overlay === "commit") {
+    return (
+      <Box
+        justifyContent="center"
+        alignItems="center"
+        width="100%"
+        height={termHeight}
+      >
+        <CommitDialog
+          onCommit={(msg) => {
+            git.commit(msg);
+            kb.closeOverlay();
+          }}
+          onCancel={kb.closeOverlay}
+        />
       </Box>
     );
   }
@@ -167,6 +188,7 @@ export function App({ cwd }: { cwd: string }) {
         fileCount={combined.length}
         sessionLabel={git.selectedSession?.label ?? null}
         hasTrackingData={git.hasTrackingData}
+        hasStagedFiles={git.hasStagedFiles}
       />
     </Box>
   );
