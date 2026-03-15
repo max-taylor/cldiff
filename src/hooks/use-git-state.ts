@@ -95,7 +95,8 @@ export function useGitState(cwd: string) {
         }
       }
     });
-  }, [tick, cwd, gitService, selectedFile, selectedSession]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally omitting selectedFile and selectedSession to avoid feedback loop
+  }, [tick, cwd, gitService]);
 
   // Refresh diff
   useEffect(() => {
