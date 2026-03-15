@@ -8,10 +8,16 @@ Download the compiled binary for your platform:
 
 ```bash
 # macOS (Apple Silicon)
-curl -fsSL https://github.com/max-taylor/cldiff/releases/latest/download/cldiff-darwin-arm64 -o /usr/local/bin/cldiff && chmod +x /usr/local/bin/cldiff
+mkdir -p ~/.local/bin && curl -fsSL https://github.com/max-taylor/cldiff/releases/latest/download/cldiff-darwin-arm64 -o ~/.local/bin/cldiff && chmod +x ~/.local/bin/cldiff
 ```
 
-Run the same command to update to the latest version.
+Make sure `~/.local/bin` is on your PATH. Add this to your `~/.zshrc` or `~/.bashrc` if it isn't:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+Run the install command again to update to the latest version.
 
 ### From source
 
