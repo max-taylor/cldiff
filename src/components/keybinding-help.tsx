@@ -16,6 +16,8 @@ const sections = [
       ["Esc", "Clear session filter"],
       ["a", "Stage/unstage file"],
       ["c", "Commit staged files"],
+      ["d", "Scroll diff half-page down"],
+      ["u", "Scroll diff half-page up"],
       ["?", "Show keybindings"],
       ["q", "Quit"],
     ],
@@ -25,22 +27,11 @@ const sections = [
     bindings: [
       ["j / ↓", "Move down"],
       ["k / ↑", "Move up"],
-      ["d", "Half-page down"],
-      ["u", "Half-page up"],
-      ["g", "Jump to top"],
+["g", "Jump to top"],
       ["G", "Jump to bottom"],
       ["Enter", "Select file (file tree)"],
-      ["c", "Add comment (diff)"],
+      ["m", "Add comment (diff)"],
       ["x", "Delete comment (diff)"],
-    ],
-  },
-  {
-    title: "Diff search",
-    bindings: [
-      ["/", "Search"],
-      ["n", "Next match"],
-      ["N", "Previous match"],
-      ["Esc", "Cancel search"],
     ],
   },
 ] as const;

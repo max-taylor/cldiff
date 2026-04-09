@@ -3,7 +3,6 @@ import { Box, Text, useInput } from "ink";
 import type { Comment } from "../../services/comments.ts";
 import { CommentBox, CommentInput } from "../comment-input.tsx";
 import { parseDiff, lineColor, displayLineNumber } from "./types.ts";
-import { useDiffSearch } from "./use-diff-search.ts";
 import { useDiffComments } from "./use-diff-comments.ts";
 import { useDiffViewport } from "./use-diff-viewport.ts";
 
@@ -29,7 +28,6 @@ export function DiffViewer({
   onInputCapture,
 }: DiffViewerProps) {
   const lines = useMemo(() => parseDiff(diff), [diff]);
-  const search = useDiffSearch(lines);
   const commenting = useDiffComments(comments);
   const viewport = useDiffViewport(
     lines,
@@ -47,27 +45,28 @@ export function DiffViewer({
   // Notify parent when text input is capturing keys
   useEffect(() => {
     onInputCapture?.(
-      search.isSearching ||
-        commenting.isCommenting ||
+      commenting.isCommenting ||
         commenting.confirmingDeleteLine !== null,
     );
   }, [
-    search.isSearching,
     commenting.isCommenting,
     commenting.confirmingDeleteLine,
     onInputCapture,
   ]);
 
-  // Always-active handler: ctrl+d/u scrolls diff regardless of panel focus
-  const handleCtrlScroll = useCallback(
+  // Always-active handler: d/u scrolls diff regardless of panel focus
+  const isInputCaptured =
+    commenting.isCommenting ||
+    commenting.confirmingDeleteLine !== null;
+  const handleDiffScroll = useCallback(
     (input: string, key: { ctrl: boolean }) => {
-      if (!key.ctrl) return;
+      if (key.ctrl || isInputCaptured) return;
       if (input === "d") viewport.halfPageDown();
       else if (input === "u") viewport.halfPageUp();
     },
-    [viewport],
+    [viewport, isInputCaptured],
   );
-  useInput(handleCtrlScroll);
+  useInput(handleDiffScroll);
 
   useInput(
     (input, key) => {
@@ -96,29 +95,11 @@ export function DiffViewer({
         return;
       }
 
-      if (search.isSearching) {
-        search.handleInput(input, key);
-        if (key.return) {
-          const first = search.firstMatch();
-          if (first !== undefined) viewport.setCursorLine(first);
-        }
-        return;
-      }
-
       if (input === "j" || key.downArrow) viewport.moveDown();
       else if (input === "k" || key.upArrow) viewport.moveUp();
       else if (input === "G") viewport.jumpBottom();
       else if (input === "g") viewport.jumpTop();
-      else if (input === "d") viewport.halfPageDown();
-      else if (input === "u") viewport.halfPageUp();
-      else if (input === "/") search.start();
-      else if (input === "n") {
-        const line = search.nextMatch();
-        if (line !== undefined) viewport.setCursorLine(line);
-      } else if (input === "N") {
-        const line = search.prevMatch();
-        if (line !== undefined) viewport.setCursorLine(line);
-      } else if (input === "c") {
+      else if (input === "m") {
         commenting.start(viewport.cursorLine);
       } else if (input === "x") {
         commenting.startDelete(viewport.cursorLine);
@@ -145,9 +126,6 @@ export function DiffViewer({
 
         const { globalIndex, line } = item;
         const isCursor = globalIndex === viewport.cursorLine && isFocused;
-        const isMatch = search.matchIndices.includes(globalIndex);
-        const isCurrentMatch =
-          search.matchIndices[search.currentMatchIndex] === globalIndex;
         const hasComment = commenting.commentedLines.has(globalIndex);
         const showInlineInput =
           commenting.isCommenting && globalIndex === viewport.cursorLine;
@@ -175,12 +153,9 @@ export function DiffViewer({
               </Box>
               <Text
                 color={isCursor ? undefined : lineColor(line.type)}
-                dimColor={
-                  line.type === "context" && !isCursor && !isCurrentMatch
-                }
-                bold={isCursor || isCurrentMatch}
-                inverse={isCursor || isCurrentMatch}
-                underline={isMatch && !isCurrentMatch && !isCursor}
+                dimColor={line.type === "context" && !isCursor}
+                bold={isCursor}
+                inverse={isCursor}
               >
                 {line.content || " "}
               </Text>
@@ -207,20 +182,6 @@ export function DiffViewer({
           </React.Fragment>
         );
       })}
-      {search.isSearching && (
-        <Box>
-          <Text color="yellow">/{search.searchQuery}</Text>
-          <Text dimColor>_</Text>
-        </Box>
-      )}
-      {!search.isSearching &&
-        !commenting.isCommenting &&
-        search.matchIndices.length > 0 && (
-          <Text dimColor>
-            [{search.currentMatchIndex + 1}/{search.matchIndices.length}] n/N to
-            navigate
-          </Text>
-        )}
     </Box>
   );
 }

@@ -163,10 +163,12 @@ export function App({ cwd }: { cwd: string }) {
 
       <Box
         flexDirection="column"
-        flexGrow={1}
+        height={termHeight - FILE_PANE_HEIGHT - 1}
+        flexShrink={0}
         borderStyle="single"
         borderColor={kb.activePanel === "diff" ? "cyan" : "gray"}
         paddingX={1}
+        overflow="hidden"
       >
         <Text bold color="cyan">
           {git.selectedFile ?? "Diff"}

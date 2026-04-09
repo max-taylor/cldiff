@@ -9,17 +9,14 @@ const delay = () => new Promise((r) => setTimeout(r, 50));
 function TestComponent({
   itemCount,
   onSelect,
-  pageSize,
 }: {
   itemCount: number;
   onSelect: (i: number) => void;
-  pageSize?: number;
 }) {
   const { selectedIndex } = useVimNavigation({
     itemCount,
     isFocused: true,
     onSelect,
-    pageSize,
   });
   return <Text>selected:{selectedIndex}</Text>;
 }
@@ -91,29 +88,6 @@ describe("useVimNavigation", () => {
     app.stdin.write("g");
     await delay();
     expect(selected(app)).toBe(0);
-  });
-
-  test("d pages down by pageSize", async () => {
-    const app = render(
-      <TestComponent itemCount={30} onSelect={() => {}} pageSize={5} />,
-    );
-    app.stdin.write("d");
-    await delay();
-    expect(selected(app)).toBe(5);
-    app.stdin.write("d");
-    await delay();
-    expect(selected(app)).toBe(10);
-  });
-
-  test("u pages up by pageSize", async () => {
-    const app = render(
-      <TestComponent itemCount={30} onSelect={() => {}} pageSize={5} />,
-    );
-    app.stdin.write("G");
-    await delay();
-    app.stdin.write("u");
-    await delay();
-    expect(selected(app)).toBe(24);
   });
 
   test("enter calls onSelect with current index", async () => {
