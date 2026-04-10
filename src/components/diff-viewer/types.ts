@@ -1,5 +1,4 @@
 export type DiffLine =
-  | { type: "header"; content: string }
   | { type: "add"; content: string; newLine: number }
   | { type: "remove"; content: string; oldLine: number }
   | { type: "context"; content: string; oldLine: number; newLine: number };
@@ -21,9 +20,9 @@ export function parseDiff(raw: string): DiffLine[] {
       const match = hunkHeaderRe.exec(line);
       oldCounter = match ? parseInt(match[1]!, 10) : 1;
       newCounter = match ? parseInt(match[2]!, 10) : 1;
-      result.push({ type: "header", content: line });
+      // Process hunk header for line counters but don't render it
     } else if (!inHunk) {
-      result.push({ type: "header", content: line });
+      // Skip git metadata lines (diff --git, index, ---/+++)
     } else if (line.startsWith("+")) {
       result.push({ type: "add", content: line, newLine: newCounter });
       newCounter++;
@@ -45,7 +44,7 @@ export function parseDiff(raw: string): DiffLine[] {
   return result;
 }
 
-export function displayLineNumber(line: DiffLine): number | null {
+export function displayLineNumber(line: DiffLine): number {
   switch (line.type) {
     case "add":
       return line.newLine;
@@ -53,8 +52,6 @@ export function displayLineNumber(line: DiffLine): number | null {
       return line.oldLine;
     case "context":
       return line.newLine;
-    case "header":
-      return null;
   }
 }
 
@@ -75,8 +72,6 @@ export function lineColor(type: DiffLine["type"]): string | undefined {
       return "green";
     case "remove":
       return "red";
-    case "header":
-      return "cyan";
     case "context":
       return undefined;
   }

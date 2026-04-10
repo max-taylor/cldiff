@@ -11,12 +11,11 @@ describe("parseDiff", () => {
     expect(parseDiff("")).toEqual([]);
   });
 
-  test("parses file headers before first hunk", () => {
+  test("skips file headers before first hunk", () => {
     const raw =
       "diff --git a/foo.ts b/foo.ts\nindex abc..def 100644\n--- a/foo.ts\n+++ b/foo.ts";
     const result = parseDiff(raw);
-    expect(result).toHaveLength(4);
-    expect(result.every((l) => l.type === "header")).toBe(true);
+    expect(result).toHaveLength(0);
   });
 
   test("parses a simple hunk with add, remove, context", () => {
@@ -30,7 +29,6 @@ describe("parseDiff", () => {
 
     const result = parseDiff(raw);
     expect(result).toEqual([
-      { type: "header", content: "@@ -1,3 +1,3 @@" },
       { type: "context", content: " unchanged", oldLine: 1, newLine: 1 },
       { type: "remove", content: "-old line", oldLine: 2 },
       { type: "add", content: "+new line", newLine: 2 },
@@ -71,12 +69,12 @@ describe("parseDiff", () => {
   test("handles hunk starting at non-1 line numbers", () => {
     const raw = "@@ -42,1 +57,1 @@\n-removed\n+added";
     const result = parseDiff(raw);
-    expect(result[1]).toEqual({
+    expect(result[0]).toEqual({
       type: "remove",
       content: "-removed",
       oldLine: 42,
     });
-    expect(result[2]).toEqual({ type: "add", content: "+added", newLine: 57 });
+    expect(result[1]).toEqual({ type: "add", content: "+added", newLine: 57 });
   });
 });
 
@@ -104,9 +102,6 @@ describe("displayLineNumber", () => {
     ).toBe(4);
   });
 
-  test("returns null for header", () => {
-    expect(displayLineNumber({ type: "header", content: "@@" })).toBeNull();
-  });
 });
 
 describe("maxLineNumber", () => {
@@ -124,7 +119,6 @@ describe("lineColor", () => {
   test("returns correct colors", () => {
     expect(lineColor("add")).toBe("green");
     expect(lineColor("remove")).toBe("red");
-    expect(lineColor("header")).toBe("cyan");
     expect(lineColor("context")).toBeUndefined();
   });
 });

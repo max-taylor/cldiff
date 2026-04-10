@@ -133,10 +133,7 @@ export function DiffViewer({
           commenting.confirmingDeleteLine === globalIndex;
 
         const displayNum = displayLineNumber(line);
-        const lineNum =
-          displayNum !== null
-            ? String(displayNum).padStart(viewport.gutterWidth, " ")
-            : " ".repeat(viewport.gutterWidth);
+        const lineNum = String(displayNum).padStart(viewport.gutterWidth, " ");
         return (
           <React.Fragment key={globalIndex}>
             <Box>
@@ -174,7 +171,7 @@ export function DiffViewer({
             )}
             {showInlineInput && (
               <CommentInput
-                lineNumber={displayNum ?? globalIndex + 1}
+                lineNumber={displayNum}
                 text={commenting.commentText}
                 isEdit={commenting.editingCommentId !== null}
               />
