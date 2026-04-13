@@ -1,6 +1,6 @@
 {
   "name": "cldiff",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Session-aware diff tracking and TUI review tool for AI-assisted code review.",
   "author": {
     "name": "max-taylor",
