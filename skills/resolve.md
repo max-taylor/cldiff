@@ -1,5 +1,5 @@
 ---
-description: Read review comments from .cldiff/comments.json and resolve them by implementing the requested changes.
+description: Read review comments from .cldiff/comments.jsonl and resolve them by implementing the requested changes.
 argument-hint: "[all | <file-path> | <comment-id>]"
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 disable-model-invocation: true
@@ -11,16 +11,16 @@ You are resolving inline review comments left in a TUI diff viewer. Comments are
 
 ## Step 0: Load Comments
 
-1. Read `.cldiff/comments.json` in the repo root.
+1. Read `.cldiff/comments.jsonl` in the repo root. This is a JSONL file (one JSON object per line).
 2. If the file doesn't exist or is empty, tell the user there are no comments and stop.
-3. Filter to comments where `"resolved": false`.
-4. If no unresolved comments, tell the user everything is resolved and stop.
+3. Filter to comments where `"status": "created"`.
+4. If no actionable comments, tell the user everything is resolved and stop.
 
 ## Step 1: Select Scope
 
 Based on `$ARGUMENTS`:
 
-- **No args or "all"**: Process all unresolved comments.
+- **No args or "all"**: Process all `"status": "created"` comments.
 - **A file path** (e.g. `src/cli.tsx`): Only process comments matching that file.
 - **A UUID**: Only process the single comment with that id.
 
@@ -56,7 +56,7 @@ For each actionable comment:
 
 1. Make the code change in the referenced file.
 2. After editing, read back the changed area to verify correctness.
-3. Run `pnpm typecheck` to validate.
+3. Run `bun run typecheck` to validate.
 
 If a change breaks typecheck, fix it before moving on.
 
@@ -64,9 +64,9 @@ If a change breaks typecheck, fix it before moving on.
 
 After successfully implementing a comment:
 
-1. Read the current `.cldiff/comments.json` (re-read to avoid stale data).
-2. Set `"resolved": true` for each comment that was implemented.
-3. Write the updated JSON back to `.cldiff/comments.json`.
+1. Read the current `.cldiff/comments.jsonl` (re-read to avoid stale data). Parse each line as a separate JSON object.
+2. Set `"status": "resolved"` for each comment that was implemented.
+3. Write the updated JSONL back to `.cldiff/comments.jsonl` (one JSON object per line, newline-terminated).
 
 Do NOT mark unclear/skipped comments as resolved.
 
@@ -83,6 +83,6 @@ Print a final report:
 
 - **Do NOT mark a comment resolved unless the change is actually implemented and verified.**
 - **Do NOT silently skip comments.** Every unresolved comment must be either implemented, flagged, or explicitly asked about.
-- **Re-read `.cldiff/comments.json` before writing** to avoid overwriting concurrent changes from the TUI.
+- **Re-read `.cldiff/comments.jsonl` before writing** to avoid overwriting concurrent changes from the TUI.
 - **Keep changes minimal.** Only change what the comment asks for — don't refactor surrounding code.
 - **Match existing code patterns** in the file you're editing.
