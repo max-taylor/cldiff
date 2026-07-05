@@ -1,4 +1,3 @@
-import { readFileSync } from "fs";
 import type { ChangedFile } from "./git.ts";
 import {
   type ReviewTracking,
@@ -96,7 +95,7 @@ export async function getSessionLabel(
   if (cached) return cached;
 
   try {
-    const content = readFileSync(session.transcript_path, "utf-8");
+    const content = await Bun.file(session.transcript_path).text();
     const lines = content.trim().split("\n");
 
     for (const line of lines) {

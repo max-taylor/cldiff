@@ -31,7 +31,7 @@ const sections = [
       ["G", "Jump to bottom"],
       ["Enter", "Select file (file tree)"],
       ["m", "Add comment (diff)"],
-      ["x", "Delete comment (diff)"],
+      ["x", "Accept/delete comment (diff)"],
     ],
   },
 ] as const;

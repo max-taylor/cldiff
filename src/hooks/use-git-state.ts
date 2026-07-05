@@ -191,5 +191,6 @@ export function useGitState(cwd: string) {
     hasTrackingData,
     selectSession,
     clearSessionFilter,
+    tick,
   };
 }

@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Box, Text } from "ink";
 import type { ChangedFile, FileStatus } from "../../services/git.ts";
+import { COMMENT_COLORS } from "../../theme.ts";
+import type { FileCommentCounts } from "../../app.tsx";
 import { useVimNavigation } from "../../hooks/use-vim-navigation.ts";
-import { buildTreeRows, type Row } from "./build-tree-rows.ts";
+import { buildFileTreeData } from "./build-file-tree-rows.ts";
+import type { Row } from "./build-tree-rows.ts";
 
 interface FileTreeProps {
   unstagedFiles: ChangedFile[];
@@ -10,8 +13,8 @@ interface FileTreeProps {
   isFocused: boolean;
   onSelectFile: (filePath: string, staged: boolean) => void;
   onCursorChange: (filePath: string, staged: boolean) => void;
-  showStagedSection: boolean;
   viewportHeight: number;
+  commentCounts?: FileCommentCounts;
 }
 
 const statusColors: Record<FileStatus, string> = {
@@ -26,61 +29,57 @@ export function FileTree({
   isFocused,
   onSelectFile,
   onCursorChange,
-  showStagedSection,
   viewportHeight,
+  commentCounts,
 }: FileTreeProps) {
-  const sortedUnstaged = [...unstagedFiles].sort((a, b) =>
-    a.path.localeCompare(b.path),
-  );
-  const sortedStaged = [...stagedFiles].sort((a, b) =>
-    a.path.localeCompare(b.path),
-  );
+  const [collapsed, setCollapsed] = useState({ unstaged: false, staged: true });
 
-  // Build tree-structured visual rows first, then navigate in visual order
-  const rows: Row[] = [];
-  if (!showStagedSection) {
-    rows.push(...buildTreeRows(sortedUnstaged, false));
-  } else {
-    if (sortedUnstaged.length > 0) {
-      rows.push({ type: "header", label: "Unstaged" });
-      rows.push(...buildTreeRows(sortedUnstaged, false));
-    }
-    if (sortedStaged.length > 0) {
-      rows.push({ type: "header", label: "Staged" });
-      rows.push(...buildTreeRows(sortedStaged, true));
-    }
-  }
-
-  // Extract file rows in visual order for navigation
-  const fileRows = rows.filter(
-    (r): r is Extract<Row, { type: "file" }> => r.type === "file",
+  const { rows, navigableRows } = useMemo(
+    () => buildFileTreeData(unstagedFiles, stagedFiles, collapsed),
+    [unstagedFiles, stagedFiles, collapsed],
   );
 
-  const { selectedIndex } = useVimNavigation({
-    itemCount: fileRows.length,
+  const { selectedIndex, setSelectedIndex } = useVimNavigation({
+    itemCount: navigableRows.length,
     isFocused,
     onSelect: (index) => {
-      const row = fileRows[index]!;
-      onSelectFile(row.file.path, row.staged);
+      const row = navigableRows[index]!;
+      if (row.type === "header") {
+        const key = row.label === "Unstaged" ? "unstaged" : "staged";
+        setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }));
+      } else {
+        onSelectFile(row.file.path, row.staged);
+      }
     },
   });
 
-  // Auto-select file under cursor as user navigates
+  // Clamp selectedIndex when navigable items shrink (e.g. after collapsing)
   useEffect(() => {
-    if (!isFocused || fileRows.length === 0) return;
-    const row = fileRows[selectedIndex];
-    if (!row) return;
+    if (selectedIndex >= navigableRows.length && navigableRows.length > 0) {
+      setSelectedIndex(navigableRows.length - 1);
+    }
+  }, [navigableRows.length, selectedIndex, setSelectedIndex]);
+
+  // Auto-select file under cursor as user navigates (only for file rows)
+  useEffect(() => {
+    if (!isFocused || navigableRows.length === 0) return;
+    const row = navigableRows[selectedIndex];
+    if (!row || row.type !== "file") return;
     onCursorChange(row.file.path, row.staged);
-  }, [selectedIndex, isFocused, fileRows, onCursorChange]);
+  }, [selectedIndex, isFocused, navigableRows, onCursorChange]);
 
   // Scroll to keep selected item visible
   const [scrollOffset, setScrollOffset] = useState(0);
-  const selectedFileRow = fileRows[selectedIndex];
-  const selectedRowIndex = selectedFileRow ? rows.indexOf(selectedFileRow) : -1;
+  const selectedNavRow = navigableRows[selectedIndex];
+  const selectedRowIndex = selectedNavRow ? rows.indexOf(selectedNavRow) : -1;
 
-  // Walk backwards to find parent context rows (headers/directories) above the selected file
+  // Walk backwards to find parent context rows (headers/directories) above the selected row
   let contextStart = selectedRowIndex;
-  while (contextStart > 0 && rows[contextStart - 1]?.type !== "file") {
+  while (
+    contextStart > 0 &&
+    rows[contextStart - 1]?.type !== "file" &&
+    rows[contextStart - 1]?.type !== "header"
+  ) {
     contextStart--;
   }
 
@@ -93,7 +92,7 @@ export function FileTree({
     }
   }, [selectedRowIndex, viewportHeight, contextStart, scrollOffset]);
 
-  if (fileRows.length === 0) {
+  if (navigableRows.length === 0) {
     return <Text dimColor>No changed files</Text>;
   }
 
@@ -103,9 +102,23 @@ export function FileTree({
     <Box flexDirection="column">
       {visibleRows.map((row, i) => {
         if (row.type === "header") {
+          const isUnstaged = row.label === "Unstaged";
+          const count = isUnstaged
+            ? unstagedFiles.length
+            : stagedFiles.length;
+          const isCollapsed = isUnstaged
+            ? collapsed.unstaged
+            : collapsed.staged;
+          const arrow = isCollapsed ? "▶" : "▼";
+          const isAtCursor = row === selectedNavRow;
           return (
-            <Text key={`header-${row.label}`} dimColor bold>
-              {row.label}
+            <Text
+              key={`header-${row.label}`}
+              bold
+              inverse={isAtCursor && isFocused}
+              dimColor={!isAtCursor}
+            >
+              {isAtCursor ? ">" : " "} {arrow} {row.label} ({count})
             </Text>
           );
         }
@@ -120,7 +133,8 @@ export function FileTree({
             </Box>
           );
         }
-        const isAtCursor = row === selectedFileRow;
+        const isAtCursor = row === selectedNavRow;
+        const counts = commentCounts?.get(row.file.path);
         return (
           <Box key={`${row.file.path}-${row.staged}`}>
             <Text dimColor>{isAtCursor ? ">" : " "} </Text>
@@ -135,6 +149,16 @@ export function FileTree({
               {row.prefix}
               {row.fileName}
             </Text>
+            {counts && (
+              <Text>
+                {counts.created > 0 && (
+                  <Text color={COMMENT_COLORS.created}> {counts.created}</Text>
+                )}
+                {counts.resolved > 0 && (
+                  <Text color={COMMENT_COLORS.resolved}> {counts.resolved}</Text>
+                )}
+              </Text>
+            )}
           </Box>
         );
       })}

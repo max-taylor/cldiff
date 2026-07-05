@@ -1,10 +1,13 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import type { Comment } from "../../services/comments.ts";
 import { maxLineNumber, type DiffLine } from "./types.ts";
+import {
+  computeScrollOffset,
+  buildVisibleItems,
+  type VisibleItem,
+} from "./compute-viewport.ts";
 
-export type VisibleItem =
-  | { kind: "line"; line: DiffLine; globalIndex: number }
-  | { kind: "comments"; comments: Comment[]; anchorLine: number };
+export type { VisibleItem } from "./compute-viewport.ts";
 
 export function useDiffViewport(
   lines: DiffLine[],
@@ -33,51 +36,21 @@ export function useDiffViewport(
 
   // Scroll follow cursor (comment-aware)
   useEffect(() => {
-    if (cursorLine < scrollOffset) {
-      setScrollOffset(cursorLine);
-      return;
-    }
-
-    let visualRow = 0;
-    for (let i = scrollOffset; i <= cursorLine; i++) {
-      visualRow += 1;
-      const lc = commentsByLine.get(i);
-      if (lc) visualRow += lc.length + 3;
-    }
-
-    if (visualRow > viewportHeight) {
-      let newOffset = scrollOffset;
-      while (newOffset < cursorLine) {
-        let rows = 0;
-        for (let i = newOffset; i <= cursorLine; i++) {
-          rows += 1;
-          const lc = commentsByLine.get(i);
-          if (lc) rows += lc.length + 3;
-        }
-        if (rows <= viewportHeight) break;
-        newOffset++;
-      }
+    const newOffset = computeScrollOffset(
+      cursorLine,
+      scrollOffset,
+      viewportHeight,
+      commentsByLine,
+    );
+    if (newOffset !== scrollOffset) {
       setScrollOffset(newOffset);
     }
   }, [cursorLine, viewportHeight, scrollOffset, commentsByLine]);
 
-  const visibleItems = useMemo(() => {
-    const items: VisibleItem[] = [];
-    let remainingHeight = viewportHeight;
-
-    for (let i = scrollOffset; i < lines.length && remainingHeight > 0; i++) {
-      items.push({ kind: "line", line: lines[i]!, globalIndex: i });
-      remainingHeight -= 1;
-
-      const lineComments = commentsByLine.get(i);
-      if (lineComments && remainingHeight > 0) {
-        items.push({ kind: "comments", comments: lineComments, anchorLine: i });
-        remainingHeight -= lineComments.length + 3;
-      }
-    }
-
-    return items;
-  }, [lines, scrollOffset, viewportHeight, commentsByLine]);
+  const visibleItems = useMemo(
+    () => buildVisibleItems(lines, scrollOffset, viewportHeight, commentsByLine),
+    [lines, scrollOffset, viewportHeight, commentsByLine],
+  );
 
   const gutterWidth = useMemo(
     () => String(maxLineNumber(lines) || 1).length,

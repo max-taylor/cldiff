@@ -1,6 +1,7 @@
 import React, { useMemo, useEffect, useCallback } from "react";
 import { Box, Text, useInput } from "ink";
 import type { Comment } from "../../services/comments.ts";
+import { COMMENT_COLORS } from "../../theme.ts";
 import { CommentBox, CommentInput } from "../comment-input.tsx";
 import { parseDiff, lineColor, displayLineNumber } from "./types.ts";
 import { useDiffComments } from "./use-diff-comments.ts";
@@ -126,7 +127,13 @@ export function DiffViewer({
 
         const { globalIndex, line } = item;
         const isCursor = globalIndex === viewport.cursorLine && isFocused;
-        const hasComment = commenting.commentedLines.has(globalIndex);
+        const lineComments = commenting.commentsByLine.get(globalIndex);
+        const hasComment = !!lineComments;
+        const hasResolved =
+          hasComment && lineComments!.some((c) => c.status === "resolved");
+        const commentColor = hasComment
+          ? COMMENT_COLORS[hasResolved ? "resolved" : "created"]
+          : undefined;
         const showInlineInput =
           commenting.isCommenting && globalIndex === viewport.cursorLine;
         const showDeleteConfirm =
@@ -140,7 +147,7 @@ export function DiffViewer({
               <Box flexShrink={0}>
                 <Text dimColor>{lineNum}</Text>
                 {hasComment ? (
-                  <Text color="yellow" dimColor>
+                  <Text color={commentColor} dimColor>
                     {" "}
                     *
                   </Text>
@@ -160,12 +167,15 @@ export function DiffViewer({
             {showDeleteConfirm && (
               <Box
                 borderStyle="round"
-                borderColor="red"
+                borderColor={hasResolved ? "green" : "red"}
                 paddingX={1}
                 flexDirection="column"
               >
-                <Text bold color="red">
-                  Delete comment? <Text color="white">(y/n)</Text>
+                <Text bold color={hasResolved ? "green" : "red"}>
+                  {hasResolved
+                    ? "Accept resolved comment?"
+                    : "Delete comment?"}{" "}
+                  <Text color="white">(y/n)</Text>
                 </Text>
               </Box>
             )}

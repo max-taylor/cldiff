@@ -1,23 +1,30 @@
 import { Box, Text } from "ink";
 import type { Comment } from "../services/comments.ts";
+import { COMMENT_COLORS } from "../theme.ts";
 
 interface CommentBoxProps {
   comments: Comment[];
 }
 
 export function CommentBox({ comments }: CommentBoxProps) {
+  const hasResolved = comments.some((c) => c.status === "resolved");
+  const color = COMMENT_COLORS[hasResolved ? "resolved" : "created"];
+  const statusLabel = hasResolved ? "resolved" : "created";
+  const countLabel =
+    comments.length === 1 ? "Comment" : `${comments.length} Comments`;
+
   return (
     <Box
       flexDirection="column"
       borderStyle="round"
-      borderColor="yellow"
+      borderColor={color}
       paddingX={1}
     >
-      <Text bold color="yellow">
-        {comments.length === 1 ? "Comment" : `${comments.length} Comments`}
+      <Text bold color={color}>
+        {countLabel} ({statusLabel})
       </Text>
       {comments.map((comment) => (
-        <Text key={comment.id} color="white">
+        <Text key={comment.id} color={COMMENT_COLORS[comment.status]}>
           {comment.content}
         </Text>
       ))}

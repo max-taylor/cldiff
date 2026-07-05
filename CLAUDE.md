@@ -44,6 +44,16 @@ Default to Bun for everything — `bun <file>`, `bun test`, `bun install`. Bun a
 
 **Data flow:** FileWatcher detects changes → increments tick in useGitState → re-fetches file list → user selects file → fetches diff → DiffViewer renders parsed lines.
 
+## Performance
+
+Speed is the #1 priority. This is a daily-use TUI — boot time, file switching, comment operations, and rendering must all feel instant. Zero perceptible lag.
+
+- Never iterate the same collection multiple times when once will do. Precompute derived values.
+- Avoid unnecessary re-renders. Use `useMemo`/`useCallback` for anything computed in the render path.
+- Prefer `Map`/`Set` lookups over array scans in hot paths (render loops, keybinding handlers).
+- Keep file I/O async and non-blocking. Batch writes where possible.
+- Profile before adding complexity — don't optimize what isn't slow, but never introduce something that could be slow.
+
 ## Testing
 
 Tests use `bun:test` with `beforeAll`/`afterAll` lifecycle hooks. Git tests create temporary repos with real git operations (init, commit, branch). Test files are colocated with source (`*.test.ts`).

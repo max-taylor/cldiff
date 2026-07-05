@@ -1,5 +1,15 @@
 import { appendFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
+import type { CommentStatus } from "../theme.ts";
+
+function migrateComment(raw: unknown): Comment {
+  const obj = raw as Record<string, unknown>;
+  if ("resolved" in obj && !("status" in obj)) {
+    const { resolved, ...rest } = obj;
+    return { ...rest, status: resolved ? "resolved" : "created" } as unknown as Comment;
+  }
+  return raw as Comment;
+}
 
 export interface Comment {
   id: string;
@@ -7,7 +17,7 @@ export interface Comment {
   line: number;
   branch: string;
   content: string;
-  resolved: boolean;
+  status: CommentStatus;
   createdAt: string;
 }
 
@@ -33,7 +43,7 @@ export class CommentsService {
         .trim()
         .split("\n")
         .filter(Boolean)
-        .map((line) => JSON.parse(line));
+        .map((line) => migrateComment(JSON.parse(line)));
     } catch {
       return [];
     }

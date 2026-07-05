@@ -25,7 +25,7 @@ function makeComment(overrides: Partial<Comment> = {}): Comment {
     line: 10,
     branch: "feature",
     content: "looks wrong",
-    resolved: false,
+    status: "created",
     createdAt: "2026-01-01T00:00:00Z",
     ...overrides,
   };
@@ -114,6 +114,23 @@ describe("CommentsService", () => {
     // With the catch-all, a single bad line causes the whole load to return []
     // This is acceptable — data corruption is rare and the catch prevents crashes
     expect(Array.isArray(loaded)).toBe(true);
+  });
+
+  test("migrates resolved boolean to status field on load", async () => {
+    const svc = new CommentsService(tempDir);
+    const oldFormat = [
+      { id: "old-1", file: "a.ts", line: 1, branch: "main", content: "fix", resolved: false, createdAt: "2026-01-01T00:00:00Z" },
+      { id: "old-2", file: "b.ts", line: 2, branch: "main", content: "done", resolved: true, createdAt: "2026-01-01T00:00:00Z" },
+    ];
+    const { mkdir: mkdirFs } = await import("node:fs/promises");
+    await mkdirFs(join(tempDir, ".cldiff"), { recursive: true });
+    const data = oldFormat.map((c) => JSON.stringify(c)).join("\n") + "\n";
+    await Bun.write(join(tempDir, ".cldiff", "comments.jsonl"), data);
+
+    const loaded = await svc.loadComments();
+    expect(loaded[0]!.status).toBe("created");
+    expect(loaded[1]!.status).toBe("resolved");
+    expect((loaded[0] as any).resolved).toBeUndefined();
   });
 
   test("migrates legacy comments.json to comments.jsonl", async () => {

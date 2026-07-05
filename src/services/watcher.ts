@@ -65,6 +65,7 @@ export class FileWatcher {
         join(this.cwd, ".git", "index"),
         join(this.cwd, ".git", "HEAD"),
         join(this.cwd, ".claude", "review-tracking.jsonl"),
+        join(this.cwd, ".cldiff", "comments.jsonl"),
       ],
       {
         persistent: true,

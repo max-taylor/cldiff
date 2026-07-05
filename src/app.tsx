@@ -9,6 +9,9 @@ import { KeybindingHelp } from "./components/keybinding-help.tsx";
 import { CommitDialog } from "./components/commit-dialog.tsx";
 import { StatusBar } from "./components/status-bar.tsx";
 import { CommentsService, type Comment } from "./services/comments.ts";
+import type { CommentStatus } from "./theme.ts";
+
+export type FileCommentCounts = Map<string, Record<CommentStatus, number>>;
 
 export function App({ cwd }: { cwd: string }) {
   const git = useGitState(cwd);
@@ -17,12 +20,25 @@ export function App({ cwd }: { cwd: string }) {
 
   useEffect(() => {
     commentsService.loadComments().then(setAllComments);
-  }, [commentsService]);
+  }, [commentsService, git.tick]);
 
   const fileComments = useMemo(
     () => allComments.filter((c) => c.file === git.selectedFile),
     [allComments, git.selectedFile],
   );
+
+  const commentCounts: FileCommentCounts = useMemo(() => {
+    const map: FileCommentCounts = new Map();
+    for (const c of allComments) {
+      let entry = map.get(c.file);
+      if (!entry) {
+        entry = { created: 0, resolved: 0 };
+        map.set(c.file, entry);
+      }
+      entry[c.status]++;
+    }
+    return map;
+  }, [allComments]);
 
   const handleAddComment = (line: number, content: string) => {
     const newComment: Comment = {
@@ -31,7 +47,7 @@ export function App({ cwd }: { cwd: string }) {
       line,
       branch: git.currentBranch,
       content,
-      resolved: false,
+      status: "created",
       createdAt: new Date().toISOString(),
     };
     setAllComments([...allComments, newComment]);
@@ -156,8 +172,8 @@ export function App({ cwd }: { cwd: string }) {
           isFocused={kb.activePanel === "files"}
           onSelectFile={handleSelectFile}
           onCursorChange={handleCursorChange}
-          showStagedSection={true}
           viewportHeight={fileViewportHeight}
+          commentCounts={commentCounts}
         />
       </Box>
 

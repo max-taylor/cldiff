@@ -22,11 +22,6 @@ export function useDiffComments(comments: Comment[]) {
     return map;
   }, [comments]);
 
-  const commentedLines = useMemo(
-    () => new Set(commentsByLine.keys()),
-    [commentsByLine],
-  );
-
   const start = (cursorLine: number) => {
     const existing = commentsByLine.get(cursorLine);
     if (existing && existing.length > 0) {
@@ -115,7 +110,6 @@ export function useDiffComments(comments: Comment[]) {
     commentText,
     editingCommentId,
     commentsByLine,
-    commentedLines,
     confirmingDeleteLine,
     start,
     startDelete,
